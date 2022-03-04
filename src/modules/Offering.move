@@ -1,4 +1,4 @@
-address 0x64c66296d98d6ab08579b14487157e05 {
+address 0x89e1db66b5879bf19f5c1cc7d12d901a {
 module Offering {
     use 0x1::Event;
     use 0x1::Errors;
@@ -8,7 +8,7 @@ module Offering {
     use 0x1::Token;
 
     // todo: address need replace
-    const OWNER_ADDRESS: address = @0x64c66296d98d6ab08579b14487157e05;
+    const OWNER_ADDRESS: address = @0x89e1db66b5879bf19f5c1cc7d12d901a;
     // waiting for open, forbid any operation
     const OFFERING_PENDING: u8 = 1;
     // opening for staking or unstaking
@@ -29,6 +29,7 @@ module Offering {
     const OFFERING_NOT_EXISTS : u64 = 100006;
     const CAN_NOT_CHANGE_BY_CURRENT_USER : u64 = 100007;
     const EXCEED_PERSONAL_STAKING_AMOUNT_LIMIT : u64 = 100008;
+    const RECEIVED : u64 = 100009;
 
     // IDO token pool
     struct Offering<StakingTokenType: store, PaidTokenType: store, OfferingTokenType: store> has key, store {
@@ -274,6 +275,7 @@ module Offering {
 
         // obtained token
         let staking_token = borrow_global_mut<Staking<StakingTokenType, PaidTokenType, OfferingTokenType>>(user_address);
+        assert(!staking_token.is_pay_off, Errors::invalid_argument(RECEIVED));
         let obtained_tokens = mul_div(pool.offering_token_total_amount, staking_token.staking_token_amount, pool.staking_token_amount);
         let amount = Token::value<OfferingTokenType>(&pool.offering_tokens);
         assert(amount >= obtained_tokens, Errors::invalid_argument(INSUFFICIENT_BALANCE));
